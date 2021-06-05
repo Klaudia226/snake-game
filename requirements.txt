@@ -1,7 +1,11 @@
-#W tym pliku powinny się znaleźć potrzebne biblioteki orz określone ich wersje np.:
-package-one==1.9.4
-package-two==3.7.1
-package-three==1.0.1
-packge-four
-
-
+arcade==2.5.7
+attrs==21.2.0
+cffi==1.14.5
+numpy==1.20.1
+Pillow==8.2.0
+pycparser==2.20
+pyglet==1.5.17
+pymunk==6.0.0
+pytiled-parser==0.9.4a3
+PyYAML==5.4.1
+Shapely==1.7.1
