@@ -8,7 +8,7 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, constants.SCREEN_TITLE)
         arcade.set_background_color(arcade.color.APPLE_GREEN)
-        self.set_update_rate(1/7)
+        self.set_update_rate(1/2)
         self.apple_list = None
         self.wall_list = None
         self.snake_list = None
