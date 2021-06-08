@@ -7,8 +7,8 @@ import snake
 class Game(arcade.Window):
     def __init__(self):
         super().__init__(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, constants.SCREEN_TITLE)
-        arcade.set_background_color(arcade.color.APPLE_GREEN)
-        self.set_update_rate(1/2)
+        arcade.set_background_color(arcade.color.YELLOW_GREEN)
+        self.set_update_rate(1/7)
         self.apple_list = None
         self.wall_list = None
         self.snake_list = None
@@ -30,6 +30,7 @@ class Game(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
+        self.draw_grass()
         self.wall_list.draw()
         self.apple_list.draw()
         self.snake_list.draw_snake()
@@ -59,10 +60,24 @@ class Game(arcade.Window):
             self.score += 1
             self.snake_list.eating = True
         if arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.snake_list):
+            print("w siebie")
             arcade.close_window()
         if not 0 <= self.snake_list.sprite_list[0].center_x <= constants.SCREEN_WIDTH or \
             not 0 <= self.snake_list.sprite_list[0].center_y <= constants.SCREEN_HEIGHT:
+            print("poza ekran")
             arcade.close_window()
+
+    def draw_grass(self):
+        size = constants.CELL_SIZE
+        for row in range(constants.CELL_NUMBER):
+            if row % 2 == 0:
+                for col in range(constants.CELL_NUMBER):
+                    if col % 2 == 0:
+                        arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
+            else:
+                for col in range(constants.CELL_NUMBER):
+                    if col % 2 != 0:
+                        arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
 
 
 def main():

@@ -55,36 +55,27 @@ class Snake(arcade.SpriteList):
     def draw_snake(self):
         for index, element in enumerate(self.sprite_list):
             if index == 0:
-                self.update_head_graphic(element)
+                self.update_head(element)
             elif index == len(self.sprite_list) - 1:
-                self.update_tail_graphic(element)
+                self.update_tail(element)
             else:
-                previous = self.sprite_list[index + 1]
-                next = self.sprite_list[index - 1]
-                if previous.center_x == next.center_x:
-                    element.set_texture(4)
-                elif previous.center_y == next.center_y:
-                    element.set_texture(5)
+                self.update_body(element, index)
             element.draw()
 
 
-    def update_head_graphic(self, element):
+    def update_head(self, element):
         head_rel_x = self.sprite_list[1].center_x - element.center_x
         head_rel_y = self.sprite_list[1].center_y - element.center_y
         if [head_rel_x, head_rel_y] == [constants.CELL_SIZE, 0]:
             element.set_texture(2)
         elif [head_rel_x, head_rel_y] == [-constants.CELL_SIZE, 0]:
-            #self.sprite_list.insert(index, arcade.Sprite("Graphics/head_right.png", center_x = element.center_x, center_y = element.center_y))
             element.set_texture(3)
         elif [head_rel_x, head_rel_y] == [0, constants.CELL_SIZE]:
-            #self.sprite_list.insert(index, arcade.Sprite("Graphics/head_down.png", center_x = element.center_x, center_y = element.center_y))
             element.set_texture(1)
         elif [head_rel_x, head_rel_y] == [0, -constants.CELL_SIZE]:
-            #self.sprite_list.insert(index, arcade.Sprite("Graphics/head_up.png", center_x = element.center_x, center_y = element.center_y))
             element.set_texture(0)
-        #self.sprite_list.remove(element)
 
-    def update_tail_graphic(self, element):
+    def update_tail(self, element):
         tail_rel_x = self.sprite_list[-2].center_x - element.center_x
         tail_rel_y = self.sprite_list[-2].center_y - element.center_y
         if [tail_rel_x, tail_rel_y] == [constants.CELL_SIZE, 0]:
@@ -95,3 +86,23 @@ class Snake(arcade.SpriteList):
             element.set_texture(7)
         elif [tail_rel_x, tail_rel_y] == [0, -constants.CELL_SIZE]:
             element.set_texture(6)
+
+    def update_body(self, element, index):
+        previous_x = self.sprite_list[index + 1].center_x - element.center_x
+        previous_y = self.sprite_list[index + 1].center_y - element.center_y
+        next_x = self.sprite_list[index - 1].center_x - element.center_x
+        next_y = self.sprite_list[index - 1].center_y - element.center_y
+        cell = constants.CELL_SIZE
+        if previous_x == next_x:
+            element.set_texture(4)
+        elif previous_y == next_y:
+            element.set_texture(5)
+        else:
+            if (previous_x == -cell and next_y == -cell) or (previous_y == -cell and next_x == -cell):
+                element.set_texture(10)
+            if (previous_x == cell and next_y == -cell) or (previous_y == -cell and next_x == cell):
+                element.set_texture(11)
+            if (previous_x == -cell and next_y == cell) or (previous_y == cell and next_x == -cell):
+                element.set_texture(12)
+            if (previous_x == cell and next_y == cell) or (previous_y == cell and next_x == cell):
+                element.set_texture(13)
