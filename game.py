@@ -2,9 +2,10 @@ import arcade
 import constants
 import fruits
 import snake
+import bestscores
 from arcade.gui import UIManager
 
-
+BEST_SCORES = []
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -82,7 +83,7 @@ class GameView(arcade.View):
         self.snake_list.eating = True
 
     def draw_score(self):
-        score_text = f"Score: {self.score}"
+        score_text = "score: {}".format(self.score)
         arcade.draw_text(score_text, 10, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
 
     def game_over(self):
@@ -90,17 +91,30 @@ class GameView(arcade.View):
         image = arcade.draw_commands.get_image(x=0, y=0,
                  width=constants.SCREEN_WIDTH, height=constants.SCREEN_HEIGHT - constants.CELL_SIZE)
         image.save("Graphics/lastmove.png", "PNG")
-        game_over_view = GameOverView()
+        game_over_view = GameOverView(self.score)
         game_over_view.setup()
         self.window.show_view(game_over_view)
+        self.update_best_scores()
+        
 
+    def update_best_scores(self):
+        if len(BEST_SCORES) < 3:
+            BEST_SCORES.append(self.score)
+            return
+        for score in BEST_SCORES:
+            if self.score > score:
+                BEST_SCORES.remove(score)
+                BEST_SCORES.append(self.score)
+                return
+                    
 
 class GameOverView(arcade.View):
-    def __init__(self):
+    def __init__(self, score):
         super().__init__()
         self.ui_manager = UIManager()
         arcade.cleanup_texture_cache()
         self.texture = arcade.load_texture("Graphics/lastmove.png")
+        self.score = score
         
 
     def on_hide_view(self):
@@ -117,8 +131,8 @@ class GameOverView(arcade.View):
                 )
         self.ui_manager.add_ui_element(button1)
 
-        button2 = ExitButton(
-                'Exit',
+        button2 = BestScoresButton(
+                'Best scores',
                 center_x=300,
                 center_y=250,
                 width=250,
@@ -126,12 +140,22 @@ class GameOverView(arcade.View):
                 )
         self.ui_manager.add_ui_element(button2)
 
+        button3 = ExitButton(
+                'Exit',
+                center_x=300,
+                center_y=200,
+                width=250,
+                height=40
+                )
+        self.ui_manager.add_ui_element(button3)
+
 
     def on_draw(self):
         arcade.start_render()
         self.texture.draw_sized(constants.SCREEN_WIDTH/2,
         (constants.SCREEN_HEIGHT-constants.CELL_SIZE)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT -constants.CELL_SIZE)
         arcade.draw_text("GAME OVER", 150, 350, arcade.color.BLACK, font_size=50)
+        arcade.draw_text("score: {}".format(self.score), 260, 330, arcade.color.BLACK, font_size=20)
 
 class PlayAgainButton(arcade.gui.UIFlatButton):
     def on_click(self):
@@ -139,6 +163,13 @@ class PlayAgainButton(arcade.gui.UIFlatButton):
         game_view.setup()
         game_view.window.show_view(game_view)
 
+class BestScoresButton(arcade.gui.UIFlatButton):
+    def on_click(self):
+        bestscores_view = bestscores.BestScoresView(BEST_SCORES)
+        bestscores_view.window.show_view(bestscores_view)
+
+
 class ExitButton(arcade.gui.UIFlatButton):
     def on_click(self):
         arcade.close_window()
+

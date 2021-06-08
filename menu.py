@@ -19,7 +19,7 @@ class MenuView(arcade.View):
         button1 = StartButton(
                 'Start',
                 center_x=300,
-                center_y=320,
+                center_y=270,
                 width=250,
                 height=60
                 )
@@ -28,38 +28,29 @@ class MenuView(arcade.View):
         button2 = GameRulesButton(
                 'Game rules',
                 center_x=300,
-                center_y=250,
+                center_y=200,
                 width=250,
                 height=40
                 )
         self.ui_manager.add_ui_element(button2)
 
-        button3 = BestScoresButton(
-                'Best scores',
-                center_x=300,
-                center_y=200,
-                width=250,
-                height=40
-                )
-        self.ui_manager.add_ui_element(button3)
-
-        button4 = AboutAuthorButton(
+        button3 = AboutAuthorButton(
                 'About author',
                 center_x=300,
                 center_y=150,
                 width=250,
                 height=40
                 )
-        self.ui_manager.add_ui_element(button4)
+        self.ui_manager.add_ui_element(button3)
 
-        button5 = ExitButton(
+        button4 = ExitButton(
                 'Exit',
                 center_x=300,
                 center_y=100,
                 width=250,
                 height=40
                 )
-        self.ui_manager.add_ui_element(button5)
+        self.ui_manager.add_ui_element(button4)
 
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -81,11 +72,6 @@ class GameRulesButton(arcade.gui.UIFlatButton):
     def on_click(self):
         pass
         #widok z zasadami
-
-class BestScoresButton(arcade.gui.UIFlatButton):
-    def on_click(self):
-        pass
-        #widok z najlepszymi wynikami
 
 class AboutAuthorButton(arcade.gui.UIFlatButton):
     def on_click(self):
