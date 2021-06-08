@@ -37,6 +37,8 @@ class GameView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
+        arcade.cleanup_texture_cache()
+        self.texture = arcade.load_texture("Graphics/grass.png")
         self.texture.draw_sized(constants.SCREEN_WIDTH/2,
         (constants.SCREEN_HEIGHT-constants.CELL_SIZE)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT -constants.CELL_SIZE)
         self.wall_list.draw()
@@ -83,8 +85,10 @@ class GameView(arcade.View):
         self.snake_list.eating = True
 
     def draw_score(self):
-        score_text = "score: {}".format(self.score)
-        arcade.draw_text(score_text, 10, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
+        arcade.cleanup_texture_cache()
+        self.texture = arcade.load_texture("Graphics/apple.png")
+        self.texture.draw_sized(20, 620, 40, 40)
+        arcade.draw_text(str(self.score), 50, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
 
     def game_over(self):
         arcade.play_sound(self.dying_sound)
