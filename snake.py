@@ -37,20 +37,28 @@ class Snake(arcade.SpriteList):
         return [head, body, tail]
 
     def move_snake(self):
-        if self.direction != [0, 0]:
-            if self.eating:
-                sprite_list_copy = self.sprite_list[:]
-                self.eating = False
-            else:
-                sprite_list_copy = self.sprite_list[:-1]
+        if not self.dead:
+            if self.direction != [0, 0]:
+                if self.eating:
+                    sprite_list_copy = self.sprite_list[:]
+                    self.eating = False
+                else:
+                    sprite_list_copy = self.sprite_list[:-1]
+                    
 
-            new_element = arcade.Sprite(center_x = sprite_list_copy[0].center_x + self.direction[0] * constants.CELL_SIZE,
-                                        center_y =  sprite_list_copy[0].center_y + self.direction[1] * constants.CELL_SIZE)
-            for texture in self.my_textures:
-                new_element.append_texture(texture)
-            new_element.set_texture(0)
-            sprite_list_copy.insert(0, new_element)
-            self.sprite_list = sprite_list_copy[:]
+                new_x = sprite_list_copy[0].center_x + self.direction[0] * constants.CELL_SIZE
+                new_y = sprite_list_copy[0].center_y + self.direction[1] * constants.CELL_SIZE
+
+                if self.out_of_screen(new_x, new_y) or self.collision_with_itself(new_x, new_y):
+                    self.dead = True
+                else:
+                    new_element = arcade.Sprite(center_x = new_x,
+                                                center_y =  new_y)
+                    for texture in self.my_textures:
+                        new_element.append_texture(texture)
+                    new_element.set_texture(0)
+                    sprite_list_copy.insert(0, new_element)
+                    self.sprite_list = sprite_list_copy[:]
 
     def draw_snake(self):
         for index, element in enumerate(self.sprite_list):
@@ -106,3 +114,13 @@ class Snake(arcade.SpriteList):
                 element.set_texture(12)
             if (previous_x == cell and next_y == cell) or (previous_y == cell and next_x == cell):
                 element.set_texture(13)
+
+
+    def out_of_screen(self, x, y):
+        return not 0 < x < constants.SCREEN_WIDTH or not 0 < y < constants.SCREEN_HEIGHT
+
+    def collision_with_itself(self, x, y):
+        for element in self.sprite_list[1:-1]:
+            if element.center_x == x and element.center_y == y:
+                return True
+        return False
