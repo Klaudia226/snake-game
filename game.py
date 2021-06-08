@@ -11,7 +11,7 @@ class GameView(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.WHITE)
         self.texture = arcade.load_texture("Graphics/grass.png")
-        self.window.set_update_rate(1/7)
+        self.window.set_update_rate(1/10)
         self.apple_list = None
         self.wall_list = None
         self.snake_list = None
@@ -21,6 +21,7 @@ class GameView(arcade.View):
         self.eating_sound = arcade.load_sound("Sounds/eating.wav")
         self.dying_sound = arcade.load_sound("Sounds/dying.wav")
         self.score = 0
+        self.hearts = 3
 
     def on_hide_view(self):
         self.ui_manager.unregister_handlers()
@@ -45,6 +46,7 @@ class GameView(arcade.View):
         self.apple_list.draw()
         self.snake_list.draw_snake()
         self.draw_score()
+        self.draw_hearts()
 
     def on_key_press(self, key, mod):
         if (key == arcade.key.UP or key == arcade.key.W) and self.snake_list.direction != [0, -1]:
@@ -89,6 +91,12 @@ class GameView(arcade.View):
         self.texture = arcade.load_texture("Graphics/apple.png")
         self.texture.draw_sized(20, 620, 40, 40)
         arcade.draw_text(str(self.score), 50, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
+
+    def draw_hearts(self):
+        arcade.cleanup_texture_cache()
+        self.texture = arcade.load_texture("Graphics/heart.png")
+        self.texture.draw_sized(100, 620, 30, 30)
+        arcade.draw_text(str(self.hearts), 130, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
 
     def game_over(self):
         arcade.play_sound(self.dying_sound)
