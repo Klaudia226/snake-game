@@ -117,10 +117,10 @@ class Snake(arcade.SpriteList):
 
 
     def out_of_screen(self, x, y):
-        return not 0 < x < constants.SCREEN_WIDTH or not 0 < y < constants.SCREEN_HEIGHT
+        return not 0 < x < constants.SCREEN_WIDTH or not 0 < y < constants.SCREEN_HEIGHT - constants.CELL_SIZE
 
     def collision_with_itself(self, x, y):
-        for element in self.sprite_list[1:-1]:
+        for element in self.sprite_list[1:]:
             if element.center_x == x and element.center_y == y:
                 return True
         return False

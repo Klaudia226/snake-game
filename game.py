@@ -2,14 +2,14 @@ import arcade
 import constants
 import fruits
 import snake
-import gameover
 from arcade.gui import UIManager
 
 
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        arcade.set_background_color(arcade.color.YELLOW_GREEN)
+        arcade.set_background_color(arcade.color.WHITE)
+        self.texture = arcade.load_texture("Graphics/grass.png")
         self.window.set_update_rate(1/7)
         self.apple_list = None
         self.wall_list = None
@@ -36,12 +36,12 @@ class GameView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        self.draw_grass()
+        self.texture.draw_sized(constants.SCREEN_WIDTH/2,
+        (constants.SCREEN_HEIGHT-constants.CELL_SIZE)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT -constants.CELL_SIZE)
         self.wall_list.draw()
         self.apple_list.draw()
         self.snake_list.draw_snake()
-        score_text = f"Score: {self.score}"
-        arcade.draw_text(score_text, 10, 10, arcade.csscolor.WHITE, 18)
+        self.draw_score()
 
     def on_key_press(self, key, mod):
         if (key == arcade.key.UP or key == arcade.key.W) and self.snake_list.direction != [0, -1]:
@@ -58,35 +58,54 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         self.physics_engine.update()
         self.snake_list.move_snake()
-        if arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.apple_list):
-            self.eat_apple()
+        eaten_apple = arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.apple_list)
+        if eaten_apple:
+            self.eat_apple(eaten_apple[0])
         if self.snake_list.dead:
             self.game_over()
         
 
-    def draw_grass(self):
-        size = constants.CELL_SIZE
-        for row in range(constants.CELL_NUMBER):
-            if row % 2 == 0:
-                for col in range(constants.CELL_NUMBER):
-                    if col % 2 == 0:
-                        arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
-            else:
-                for col in range(constants.CELL_NUMBER):
-                    if col % 2 != 0:
-                        arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
+    def apple_under_snake(self, apple):
+        for element in self.snake_list:
+            if element.center_x == apple.center_x and \
+                element.center_y == apple.center_y:
+                return True
+        return False
+
+    #def draw_grass(self):
+        #size = constants.CELL_SIZE
+        #for row in range(constants.CELL_NUMBER):
+            #if row % 2 == 0:
+                #for col in range(constants.CELL_NUMBER):
+                    #if col % 2 == 0:
+                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
+                    #else:
+                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, arcade.color.YELLOW_GREEN)
+            #else:
+                #for col in range(constants.CELL_NUMBER):
+                    #if col % 2 != 0:
+                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
+                    #else:
+                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, arcade.color.YELLOW_GREEN)
     
-    def eat_apple(self):
-        self.apple_list[0].change_pos() 
-        while arcade.check_for_collision_with_list(self.apple_list[0], self.snake_list):
-            self.apple_list[0].change_pos()
+    
+    def eat_apple(self, apple):
+        apple.change_pos() 
+        while self.apple_under_snake(apple):
+            apple.change_pos()
             #arcade.play_sound(self.collect_coin_sound)
         self.score += 1
+        if self.score == 30:
+            self.apple_list.append(fruits.Apple())
         self.snake_list.eating = True
+
+    def draw_score(self):
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(score_text, 10, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
 
     def game_over(self):
         image = arcade.draw_commands.get_image(x=0, y=0,
-                 width=constants.SCREEN_WIDTH, height=constants.SCREEN_HEIGHT)
+                 width=constants.SCREEN_WIDTH, height=constants.SCREEN_HEIGHT - constants.CELL_SIZE)
         image.save("Graphics/lastmove.png", "PNG")
         game_over_view = GameOverView()
         game_over_view.setup()
@@ -97,31 +116,46 @@ class GameOverView(arcade.View):
     def __init__(self):
         super().__init__()
         self.ui_manager = UIManager()
+        arcade.cleanup_texture_cache()
         self.texture = arcade.load_texture("Graphics/lastmove.png")
+        
 
     def on_hide_view(self):
         self.ui_manager.unregister_handlers()
 
     def setup(self):
         self.ui_manager.purge_ui_elements()
-        button = PlayAgainButton(
+        button1 = PlayAgainButton(
                 'Play again',
-                center_x=200,
+                center_x=300,
                 center_y=300,
                 width=250,
-                height=20
+                height=40
                 )
-        self.ui_manager.add_ui_element(button)
+        self.ui_manager.add_ui_element(button1)
+
+        button2 = ExitButton(
+                'Exit',
+                center_x=300,
+                center_y=250,
+                width=250,
+                height=40
+                )
+        self.ui_manager.add_ui_element(button2)
 
 
     def on_draw(self):
         arcade.start_render()
         self.texture.draw_sized(constants.SCREEN_WIDTH/2,
-        constants.SCREEN_HEIGHT/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
-        arcade.draw_text("Game over", 300, 300, arcade.color.BLACK, font_size=50)
+        (constants.SCREEN_HEIGHT-constants.CELL_SIZE)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT -constants.CELL_SIZE)
+        arcade.draw_text("GAME OVER", 150, 350, arcade.color.BLACK, font_size=50)
 
 class PlayAgainButton(arcade.gui.UIFlatButton):
     def on_click(self):
         game_view = GameView()
         game_view.setup()
         game_view.window.show_view(game_view)
+
+class ExitButton(arcade.gui.UIFlatButton):
+    def on_click(self):
+        arcade.close_window()
