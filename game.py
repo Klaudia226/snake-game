@@ -17,8 +17,8 @@ class GameView(arcade.View):
         self.ui_manager = UIManager()
 
         self.physics_engine = None
-        self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
-        self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
+        self.eating_sound = arcade.load_sound("Sounds/eating.wav")
+        self.dying_sound = arcade.load_sound("Sounds/dying.wav")
         self.score = 0
 
     def on_hide_view(self):
@@ -46,7 +46,6 @@ class GameView(arcade.View):
     def on_key_press(self, key, mod):
         if (key == arcade.key.UP or key == arcade.key.W) and self.snake_list.direction != [0, -1]:
             self.snake_list.direction = [0, 1]
-            #arcade.play_sound(self.jump_sound)
         elif (key == arcade.key.DOWN or key == arcade.key.S) and self.snake_list.direction != [0, 1]:
             self.snake_list.direction = [0, -1]
         elif (key == arcade.key.LEFT or key == arcade.key.A) and self.snake_list.direction != [1, 0]:
@@ -72,30 +71,13 @@ class GameView(arcade.View):
                 return True
         return False
 
-    #def draw_grass(self):
-        #size = constants.CELL_SIZE
-        #for row in range(constants.CELL_NUMBER):
-            #if row % 2 == 0:
-                #for col in range(constants.CELL_NUMBER):
-                    #if col % 2 == 0:
-                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
-                    #else:
-                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, arcade.color.YELLOW_GREEN)
-            #else:
-                #for col in range(constants.CELL_NUMBER):
-                    #if col % 2 != 0:
-                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, (167, 209, 61))
-                    #else:
-                        #arcade.draw_rectangle_filled(col*size+size/2, row*size+size/2, size, size, arcade.color.YELLOW_GREEN)
-    
-    
     def eat_apple(self, apple):
         apple.change_pos() 
         while self.apple_under_snake(apple):
             apple.change_pos()
-            #arcade.play_sound(self.collect_coin_sound)
+        arcade.play_sound(self.eating_sound)
         self.score += 1
-        if self.score == 30:
+        if self.score == 20:
             self.apple_list.append(fruits.Apple())
         self.snake_list.eating = True
 
@@ -104,6 +86,7 @@ class GameView(arcade.View):
         arcade.draw_text(score_text, 10, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
 
     def game_over(self):
+        arcade.play_sound(self.dying_sound)
         image = arcade.draw_commands.get_image(x=0, y=0,
                  width=constants.SCREEN_WIDTH, height=constants.SCREEN_HEIGHT - constants.CELL_SIZE)
         image.save("Graphics/lastmove.png", "PNG")
