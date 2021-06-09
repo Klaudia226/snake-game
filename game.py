@@ -3,6 +3,7 @@ import constants
 import fruits
 import snake
 import bestscores
+import random
 from arcade.gui import UIManager
 
 BEST_SCORES = []
@@ -11,17 +12,17 @@ class GameView(arcade.View):
         super().__init__()
         arcade.set_background_color(arcade.color.WHITE)
         self.texture = arcade.load_texture("Graphics/grass.png")
-        self.window.set_update_rate(1/10)
         self.apple_list = None
+        self.rotten_apple_list = None
         self.wall_list = None
         self.snake_list = None
         self.ui_manager = UIManager()
-
+        self.update_rate = 1/7
+        self.window.set_update_rate(self.update_rate)
         self.physics_engine = None
         self.eating_sound = arcade.load_sound("Sounds/eating.wav")
         self.dying_sound = arcade.load_sound("Sounds/dying.wav")
         self.score = 0
-        self.hearts = 3
 
     def on_hide_view(self):
         self.ui_manager.unregister_handlers()
@@ -30,9 +31,11 @@ class GameView(arcade.View):
         self.snake_list = snake.Snake()
         self.wall_list = arcade.SpriteList(use_spatial_hash=True)
         self.apple_list = arcade.SpriteList(use_spatial_hash=True)
+        self.rotten_apple_list = arcade.SpriteList(use_spatial_hash=True)
 
         self.score = 0
         self.apple_list.append(fruits.Apple())
+        self.rotten_apple_list.append(fruits.RottenApple())
         self.physics_engine = arcade.PhysicsEngineSimple(self.snake_list.sprite_list[0], self.wall_list)
 
 
@@ -44,9 +47,27 @@ class GameView(arcade.View):
         (constants.SCREEN_HEIGHT-constants.CELL_SIZE)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT -constants.CELL_SIZE)
         self.wall_list.draw()
         self.apple_list.draw()
+        self.rotten_apple_list.draw()
         self.snake_list.draw_snake()
         self.draw_score()
         self.draw_hearts()
+
+    def on_update(self, delta_time):
+        self.physics_engine.update()
+        self.window.set_update_rate(self.update_rate)
+        self.snake_list.move_snake()
+        eaten_apple = arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.apple_list)
+        if eaten_apple:
+            self.eat_apple(eaten_apple[0])
+        eaten_rotten_apple = arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.rotten_apple_list)
+        if eaten_rotten_apple:
+            self.eat_rotten_apple(eaten_rotten_apple[0])
+        if self.snake_list.dead:
+            self.game_over()
+        if random.random() < 1/50:
+            apple_index = random.choice(range(len(self.rotten_apple_list)))
+            self.rotten_apple_list[apple_index].change_pos()
+
 
     def on_key_press(self, key, mod):
         if (key == arcade.key.UP or key == arcade.key.W) and self.snake_list.direction != [0, -1]:
@@ -57,16 +78,8 @@ class GameView(arcade.View):
             self.snake_list.direction = [-1, 0]
         elif (key == arcade.key.RIGHT or key == arcade.key.D) and self.snake_list.direction != [-1, 0]:
             self.snake_list.direction = [1, 0]
-
-        
-    def on_update(self, delta_time):
-        self.physics_engine.update()
-        self.snake_list.move_snake()
-        eaten_apple = arcade.check_for_collision_with_list(self.snake_list.sprite_list[0], self.apple_list)
-        if eaten_apple:
-            self.eat_apple(eaten_apple[0])
-        if self.snake_list.dead:
-            self.game_over()
+        elif key == arcade.key.SPACE:
+            self.update_rate = self.update_rate/2
         
 
     def apple_under_snake(self, apple):
@@ -84,7 +97,20 @@ class GameView(arcade.View):
         self.score += 1
         if self.score == 20:
             self.apple_list.append(fruits.Apple())
+        if self.score == 25:
+            self.rotten_apple_list.append(fruits.RottenApple())
         self.snake_list.eating = True
+
+    def eat_rotten_apple(self, apple):
+        apple.change_pos()
+        while self.apple_under_snake(apple):
+            apple.change_pos()
+        #arcade.play_sound(self.innydzwiek.wav)
+        self.snake_list.hearts -= 1
+        if self.snake_list.hearts == 0:
+            self.snake_list.dead = True
+        self.snake_list.eating = True
+
 
     def draw_score(self):
         arcade.cleanup_texture_cache()
@@ -95,8 +121,9 @@ class GameView(arcade.View):
     def draw_hearts(self):
         arcade.cleanup_texture_cache()
         self.texture = arcade.load_texture("Graphics/heart.png")
-        self.texture.draw_sized(100, 620, 30, 30)
-        arcade.draw_text(str(self.hearts), 130, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
+        self.texture.draw_sized(120, 620, 30, 30)
+        arcade.draw_text(str(self.snake_list.hearts), 150, constants.SCREEN_HEIGHT - constants.CELL_SIZE, arcade.csscolor.BLACK, 25)
+
 
     def game_over(self):
         arcade.play_sound(self.dying_sound)

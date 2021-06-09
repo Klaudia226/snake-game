@@ -9,6 +9,7 @@ class Snake(arcade.SpriteList):
         self.x = x_pos
         self.y = y_pos
         self.speed = speed
+        self.hearts = 3
         self.eating = False
         self.dead = False
         self.my_textures = [arcade.load_texture("Graphics/head_up.png"), arcade.load_texture("Graphics/head_down.png"), 
@@ -19,6 +20,7 @@ class Snake(arcade.SpriteList):
                             arcade.load_texture("Graphics/body_bottomleft.png"), arcade.load_texture("Graphics/body_bottomright.png"),
                             arcade.load_texture("Graphics/body_topleft.png"), arcade.load_texture("Graphics/body_topright.png")]
         self.sprite_list = self.get_snake_sprites()
+        self.bump_sound = arcade.load_sound("Sounds/bump.mp3")
 
 
     def get_snake_sprites(self):
@@ -50,7 +52,11 @@ class Snake(arcade.SpriteList):
                 new_y = sprite_list_copy[0].center_y + self.direction[1] * constants.CELL_SIZE
 
                 if self.out_of_screen(new_x, new_y) or self.collision_with_itself(new_x, new_y):
-                    self.dead = True
+                    self.hearts -= 1
+                    self.direction = [0, 0]
+                    arcade.play_sound(self.bump_sound)
+                    if self.hearts == 0:
+                        self.dead = True
                 else:
                     new_element = arcade.Sprite(center_x = new_x,
                                                 center_y =  new_y)

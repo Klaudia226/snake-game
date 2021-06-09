@@ -12,3 +12,15 @@ class Apple(arcade.Sprite):
         self.center_y = random.randint(1, constants.CELL_NUMBER) * constants.CELL_SIZE -  constants.CELL_SIZE/2
 
 
+class RottenApple(arcade.Sprite):
+    def __init__(self):
+        super().__init__("Graphics/rotten_apple.png",
+        center_x = random.randint(1, constants.CELL_NUMBER) * constants.CELL_SIZE -  constants.CELL_SIZE/2,
+        center_y = random.randint(1, constants.CELL_NUMBER) * constants.CELL_SIZE -  constants.CELL_SIZE/2)
+
+    def change_pos(self):
+        self.center_x = random.randint(1, constants.CELL_NUMBER) * constants.CELL_SIZE -  constants.CELL_SIZE/2
+        self.center_y = random.randint(1, constants.CELL_NUMBER) * constants.CELL_SIZE -  constants.CELL_SIZE/2
+
+
+
