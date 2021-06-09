@@ -7,6 +7,9 @@ from arcade.gui import UIManager
 
 
 class MenuView(arcade.View):
+    """
+    Class with menu view
+    """
     def __init__(self):
         super().__init__()
         self.ui_manager = UIManager()
@@ -16,6 +19,9 @@ class MenuView(arcade.View):
         self.ui_manager.unregister_handlers()
 
     def setup(self):
+        """
+        Show start game button, about author button and exit button
+        """
         self.ui_manager.purge_ui_elements()
         button1 = StartButton(
                 'Start',
@@ -45,9 +51,15 @@ class MenuView(arcade.View):
         self.ui_manager.add_ui_element(button3)
 
     def on_show(self):
+        """
+        Set background color
+        """
         arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
+        """
+        Draw all elements
+        """
         arcade.start_render()
         self.texture.draw_sized(constants.SCREEN_WIDTH/2,
         constants.SCREEN_HEIGHT/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
@@ -55,24 +67,45 @@ class MenuView(arcade.View):
 
     
 class StartButton(arcade.gui.UIFlatButton):
+    """
+    Class with button for showing game rules
+    """
     def on_click(self):
+        """
+        Show game rules view after clicking button
+        """
         rules_view = gamerules.GameRulesView()
         rules_view.window.show_view(rules_view)
 
 
 class AboutAuthorButton(arcade.gui.UIFlatButton):
+    """
+    Class with button for showing view about author
+    """
     def on_click(self):
+        """
+        Show view about author after clicking button
+        """
         about_author_view = AboutAuthorView()
         about_author_view.setup()
         about_author_view.window.show_view(about_author_view)
 
 class BackButton(arcade.gui.UIFlatButton):
+    """
+    Class with button for showing menu view
+    """
     def on_click(self):
+        """
+        Show menu view after clicking button
+        """
         menu_view = MenuView()
         menu_view.setup()
         menu_view.window.show_view(menu_view)
 
 class AboutAuthorView(arcade.View):
+    """
+    Class with view about author
+    """
     def __init__(self):
         super().__init__()
         self.ui_manager = UIManager()
@@ -82,6 +115,9 @@ class AboutAuthorView(arcade.View):
         self.ui_manager.unregister_handlers()
 
     def setup(self):
+        """
+        Show back button
+        """
         self.ui_manager.purge_ui_elements()
         button1 = BackButton(
                 'Back',
@@ -93,6 +129,9 @@ class AboutAuthorView(arcade.View):
         self.ui_manager.add_ui_element(button1)
 
     def on_draw(self):
+        """
+        Draw view about author
+        """
         arcade.start_render()
         self.texture.draw_sized(constants.SCREEN_WIDTH/2,
         (constants.SCREEN_HEIGHT)/2, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
@@ -100,6 +139,12 @@ class AboutAuthorView(arcade.View):
 
 
 class ExitButton(arcade.gui.UIFlatButton):
+    """
+    Class with exit button
+    """
     def on_click(self):
+        """
+        Exit game after clicking button
+        """
         arcade.close_window()
 

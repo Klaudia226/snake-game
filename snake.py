@@ -2,13 +2,23 @@ import arcade
 import constants
 
 class Snake(arcade.SpriteList):
-    def __init__(self, speed = 3, x_pos = int(constants.CELL_NUMBER/2 ) + 1,
+    """
+    Class with snake sprites. Each element of snake body is an object of arcade.Sprite class.
+
+    direction (list): list of 2 values corresponding to snake's direction, [1, 0] for right, [-1, 0] for left, 
+    [0, 1] for up, [0, -1] for down
+    x (float): x position of snake
+    y (float): y position of snake
+    hearts (int): number of lives left, for start 3
+    eating (bool): if snake is eating
+    dead (bool): if snake is dead
+    """
+    def __init__(self, x_pos = int(constants.CELL_NUMBER/2 ) + 1,
                     y_pos = 4, direction=[0, 0]):
         super().__init__()
         self.direction = direction
         self.x = x_pos
         self.y = y_pos
-        self.speed = speed
         self.hearts = 3
         self.eating = False
         self.dead = False
@@ -24,21 +34,31 @@ class Snake(arcade.SpriteList):
 
 
     def get_snake_sprites(self):
+        """
+        Return initial snake sprites
+        """
         size = constants.CELL_SIZE
         x_center = self.x * size - size/2
         y_center = self.y * size - size/2
         head = arcade.Sprite(center_x = x_center, center_y = y_center)
         for texture in self.my_textures:
-                head.append_texture(texture)
+            head.append_texture(texture)
+        head.set_texture(0)
         body = arcade.Sprite(center_x = x_center, center_y = y_center - size)
         for texture in self.my_textures:
-                body.append_texture(texture)
+            body.append_texture(texture)
+        body.set_texture(4)
         tail = arcade.Sprite(center_x = x_center, center_y = y_center - 2 * size)
         for texture in self.my_textures:
-                tail.append_texture(texture)
+            tail.append_texture(texture)
+        tail.set_texture(7)
         return [head, body, tail]
 
     def move_snake(self):
+        """
+        Move snake and increase snake's length if snake is eating, decrease amount of hearts if 
+        snake is out of screen or has collision with own tail
+        """
         if not self.dead:
             if self.direction != [0, 0]:
                 if self.eating:
@@ -67,6 +87,9 @@ class Snake(arcade.SpriteList):
                     self.sprite_list = sprite_list_copy[:]
 
     def draw_snake(self):
+        """
+        Draw each element of snake's body on screen
+        """
         for index, element in enumerate(self.sprite_list):
             if index == 0:
                 self.update_head(element)
@@ -77,7 +100,11 @@ class Snake(arcade.SpriteList):
             element.draw()
 
 
-    def update_head(self, element):
+    def update_head(self, element:arcade.Sprite):
+        """
+        Update head graphic to match the current direction
+        @param element: head sprite
+        """
         head_rel_x = self.sprite_list[1].center_x - element.center_x
         head_rel_y = self.sprite_list[1].center_y - element.center_y
         if [head_rel_x, head_rel_y] == [constants.CELL_SIZE, 0]:
@@ -89,7 +116,11 @@ class Snake(arcade.SpriteList):
         elif [head_rel_x, head_rel_y] == [0, -constants.CELL_SIZE]:
             element.set_texture(0)
 
-    def update_tail(self, element):
+    def update_tail(self, element:arcade.Sprite):
+        """
+        Update tail graphic to match the current direction
+        @param element: tail sprite
+        """
         tail_rel_x = self.sprite_list[-2].center_x - element.center_x
         tail_rel_y = self.sprite_list[-2].center_y - element.center_y
         if [tail_rel_x, tail_rel_y] == [constants.CELL_SIZE, 0]:
@@ -101,7 +132,12 @@ class Snake(arcade.SpriteList):
         elif [tail_rel_x, tail_rel_y] == [0, -constants.CELL_SIZE]:
             element.set_texture(6)
 
-    def update_body(self, element, index):
+    def update_body(self, element:arcade.Sprite, index:int):
+        """
+        Update body graphic to match the current direction
+        @param element: body sprite
+        @param index: index of element in snake's sprite_list
+        """
         previous_x = self.sprite_list[index + 1].center_x - element.center_x
         previous_y = self.sprite_list[index + 1].center_y - element.center_y
         next_x = self.sprite_list[index - 1].center_x - element.center_x
@@ -123,9 +159,15 @@ class Snake(arcade.SpriteList):
 
 
     def out_of_screen(self, x, y):
+        """
+        Check if snake is out of screen
+        """
         return not 0 < x < constants.SCREEN_WIDTH or not 0 < y < constants.SCREEN_HEIGHT - constants.CELL_SIZE
 
     def collision_with_itself(self, x, y):
+        """
+        Check if snake collided with his own body
+        """
         for element in self.sprite_list[1:]:
             if element.center_x == x and element.center_y == y:
                 return True
