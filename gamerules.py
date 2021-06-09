@@ -6,8 +6,8 @@ import game
 class GameRulesView(arcade.View):
     def __init__(self):
         super().__init__()
+        self.texture = arcade.load_texture("Graphics/gamerules.png")
         self.ui_manager = UIManager()
-        self.texture = arcade.load_texture("Graphics/author.png")
 
     def on_hide_view(self):
         self.ui_manager.unregister_handlers()
